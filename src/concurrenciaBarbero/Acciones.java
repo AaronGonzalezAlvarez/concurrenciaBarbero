@@ -28,4 +28,16 @@ public class Acciones {
     	sillas.release();
     	cola.release();
     }
+    
+    public void pelar(int i) throws InterruptedException {
+    	
+    	if(sillon.availablePermits() == 0) {
+    		System.out.println("Cliente " + i +" en la silla a la espera");
+    		sillas.acquire();
+    	}
+    	sillon.acquire();
+    	System.out.println("Cliente " + i +" me estoy pelando");
+    	sillon.release();
+    	
+    }
 }

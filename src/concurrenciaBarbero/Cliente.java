@@ -14,10 +14,12 @@ public class Cliente extends Thread {
 	
 	public void run() {
 		try {
-			Thread.sleep(1*1000);
+			/*Thread.sleep(1*1000);
 			accion.aLaEspera(i);
 			Thread.sleep(2*1000);
-			accion.sentarSilla(i);
+			accion.sentarSilla(i);*/
+			Thread.sleep(1*1000);
+			accion.pelar(i);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
