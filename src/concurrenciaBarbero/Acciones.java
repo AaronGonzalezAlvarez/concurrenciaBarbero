@@ -11,33 +11,17 @@ public class Acciones {
     //5 sillas y un sillon
     private Semaphore cola = new Semaphore(30);
     private Semaphore sillas = new Semaphore(5);
-    private Semaphore sillon = new Semaphore(1);
-    
-    public void aLaEspera(int i) throws InterruptedException {
-    	
-    	while(sillas.availablePermits() == 0) {
-        	System.out.println("Cliente " + i +" En la cola para sentarme");
-        	cola.acquire();
-    	} 
-    	sillas.acquire();
-    	
-    }
-    
-    public void sentarSilla(int i) {
-    	System.out.println("Cliente " + i +" En la cola para pelarme");
-    	sillas.release();
-    	cola.release();
-    }
+    private Semaphore sillones = new Semaphore(1);
     
     public void pelar(int i) throws InterruptedException {
-    	
-    	if(sillon.availablePermits() == 0) {
-    		System.out.println("Cliente " + i +" en la silla a la espera");
-    		sillas.acquire();
-    	}
-    	sillon.acquire();
-    	System.out.println("Cliente " + i +" me estoy pelando");
-    	sillon.release();
-    	
+        sillas.acquire();
+        System.out.println("Cliente " + i + " se sentó en una silla de espera.");
+        
+        sillones.acquire();
+        sillas.release();
+        
+        System.out.println("Cliente " + i + " me estoy pelando.");
+        Thread.sleep(5000); // Simulación del corte de pelo
+        sillones.release();
     }
 }
