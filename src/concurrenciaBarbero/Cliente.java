@@ -4,9 +4,9 @@ package concurrenciaBarbero;
 public class Cliente extends Thread {
 
 	int i;
-	Barberia barberia;
+	BarberiaLock barberia;
 
-	public Cliente(int i, Barberia barberia) {
+	public Cliente(int i, BarberiaLock barberia) {
 		this.i = i;
 		this.barberia = barberia;
 	}
@@ -14,7 +14,6 @@ public class Cliente extends Thread {
 	
 	public void run() {
 		try {
-			Thread.sleep(1*1000);
 			barberia.accesoBarberia(i);
 		} catch (InterruptedException e) {
 			e.printStackTrace();

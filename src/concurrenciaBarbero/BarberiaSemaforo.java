@@ -24,7 +24,7 @@ Si no ve ningún cliente en la silla de cortar el pelo dormitara de 10 a 20 segu
 */
 
 
-public class Barberia {
+public class BarberiaSemaforo {
     //5 sillas y un sillon
     private Semaphore cola = new Semaphore(30);
     private Semaphore sillas = new Semaphore(5);
@@ -43,7 +43,7 @@ public class Barberia {
 	    System.out.println("Cliente " + i + " a la espera de cortarme el pelo");
 	}
     
-    public void cortarPelo(int id) {
+    public void cortarPelo() {
         try {
             while (true) {
             	//sillones.availablePermits() == 1 significa que no se esta usando y por lo tanto puede descansar

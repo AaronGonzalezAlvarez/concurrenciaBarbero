@@ -1,17 +1,17 @@
 package concurrenciaBarbero;
 
 public class Barbero extends Thread {
-	Barberia accion;
+	BarberiaLock accion;
 	
-	public Barbero(Barberia accion) {
+	public Barbero(BarberiaLock accion) {
 		this.accion = accion;
 	}
 	
 	
 	public void run() {
 		try {
-			Thread.sleep(5*1000);
-			accion.cortarPelo(1);
+			Thread.sleep(3000);
+			accion.cortarPelo();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}		
