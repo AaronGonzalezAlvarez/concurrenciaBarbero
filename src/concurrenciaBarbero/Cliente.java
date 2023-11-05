@@ -4,35 +4,21 @@ package concurrenciaBarbero;
 public class Cliente extends Thread {
 
 	int i;
-	Acciones accion;
+	Barberia barberia;
 
-	public Cliente(int i, Acciones accion) {
+	public Cliente(int i, Barberia barberia) {
 		this.i = i;
-		this.accion = accion;
+		this.barberia = barberia;
 	}
 
 	
 	public void run() {
 		try {
 			Thread.sleep(1*1000);
-			accion.pelar(i);
+			barberia.accesoBarberia(i);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 
 	}
-	
-	//apartado 4
-	/*public void run() {
-		try {
-			Thread.sleep(8*1000);
-			accion.alaEspera(i, tipo);
-			Thread.sleep(5*1000);					
-			accion.cantar(i,tipo);
-			Thread.sleep(2*1000);
-			accion.dejarCantar(i, tipo);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}*/
 }
