@@ -4,9 +4,9 @@ package concurrenciaBarbero;
 public class Cliente extends Thread {
 
 	int i;
-	BarberiaSynchronized barberia;
+	BarberiaLock barberia;
 
-	public Cliente(int i, BarberiaSynchronized barberia) {
+	public Cliente(int i, BarberiaLock barberia) {
 		this.i = i;
 		this.barberia = barberia;
 	}

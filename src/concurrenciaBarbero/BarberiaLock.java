@@ -11,8 +11,9 @@ public class BarberiaLock {
 
 	private ReentrantLock lock = new ReentrantLock();
 	private Condition sillasCondition = lock.newCondition();
-	/*private Condition colaCondition = lock.newCondition();
-	private Condition sillonCondition = lock.newCondition();*/
+	private Condition colaCondition = lock.newCondition();
+	private Condition sillonCondition = lock.newCondition();
+	private Condition barberoCondition = lock.newCondition();
 	private Random rand = new Random();
 
 	public void accesoBarberia(int i) throws InterruptedException {
@@ -21,7 +22,7 @@ public class BarberiaLock {
         	while (sillasSillon.completo()) {
                 System.out.println("El cliente " + i + " espera en la cola para sentarse");
                 //no se entra
-                sillasCondition.await();
+                colaCondition.await();
             }
         	
             while (sillasSillon.verSillon()) {
@@ -33,11 +34,12 @@ public class BarberiaLock {
             
             sillasSillon.sillonOcupado();
             System.out.println("Cliente "+i + " esperando a ser pelado");
-            sillasCondition.await();
+            barberoCondition.signal();
+            sillonCondition.await();
             sillasSillon.sillonLibre();
-            sillasCondition.signalAll();
             System.out.println("Cliente "+i + " ha salido satisfecho");
-            //System.out.println("cola: " +cola+ " sillas: " +sillas+ " sillon: "+sillon);
+            //sillasCondition.signalAll();
+            //colaCondition.signalAll();
         } finally {
             lock.unlock();
         }
@@ -46,17 +48,16 @@ public class BarberiaLock {
 	public void cortarPelo() throws InterruptedException {
 		lock.lock();
 		try {
-			boolean prueba = true;
-			do {
-				if (!sillasSillon.verSillon()) {
+			while (true) {
+				if (!hayHilosEsperandoEnCondicion(sillonCondition)) {
 					System.out.println("El barbero está durmiendo.");
-					//Thread.sleep((10 + rand.nextInt(11)) * 1000);
+					// Thread.sleep((10 + rand.nextInt(11)) * 1000);
 					Thread.sleep(1000);
 				} else {
 					int numeroAleatorio = rand.nextInt(2) + 1;
 					if (numeroAleatorio == 1) {
 						System.out.println("Sigo durmiendo.");
-						//Thread.sleep((10 + rand.nextInt(11)) * 1000);
+						// Thread.sleep((10 + rand.nextInt(11)) * 1000);
 						Thread.sleep(2000);
 					} else {
 						System.out.println("Estoy pelando al cliente.");
@@ -65,13 +66,21 @@ public class BarberiaLock {
 						// limpiar el suelo
 						Thread.sleep(1000);
 						System.out.println("he acabado de cortar el pelo");
+						sillonCondition.signal();
 						sillasCondition.signalAll();
+						colaCondition.signalAll();
+						barberoCondition.await();
 						Thread.sleep(2000);
 					}
 				}
-			}while(prueba);
+			}
+
 		} finally {
 			lock.unlock();
 		}
 	}
+	
+	private boolean hayHilosEsperandoEnCondicion(Condition condition) {
+        return lock.hasWaiters(condition);
+    }
 }
