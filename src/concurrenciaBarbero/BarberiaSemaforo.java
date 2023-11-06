@@ -26,16 +26,13 @@ Si no ve ningún cliente en la silla de cortar el pelo dormitara de 10 a 20 segu
 
 public class BarberiaSemaforo {
     //5 sillas y un sillon
-    private Semaphore cola = new Semaphore(30);
     private Semaphore sillas = new Semaphore(5);
     private Semaphore sillones = new Semaphore(1);
     private Random rand = new Random();       
     
     public void accesoBarberia(int i) throws InterruptedException {
-    	cola.acquire();
     	System.out.println("Cliente " + i + " en la cola para sentarme en la silla.");
 	    sillas.acquire();
-	    cola.release();
 	    System.out.println("Cliente " + i + " se sentó en una silla de espera.");
 	    
 	    sillones.acquire();
@@ -54,13 +51,14 @@ public class BarberiaSemaforo {
                     int numeroAleatorio = rand.nextInt(2) + 1;
                     if(numeroAleatorio == 1) {
                     	System.out.println("Sigo durmiendo.");
-                        Thread.sleep((10 + rand.nextInt(11)) * 1000);
+                        //Thread.sleep((10 + rand.nextInt(11)) * 1000);
+                    	Thread.sleep(1000);
                     }else {
                     	System.out.println("Estoy pelando al cliente.");
                     	//cortando el pelo al cliente
-                    	Thread.sleep(7000);
+                    	Thread.sleep(2000);
                     	//limpiar el suelo
-                    	Thread.sleep(5000);
+                    	Thread.sleep(1000);
                     	System.out.println("he acabado de cortar el pelo");
                     	sillones.release();
                     }                	

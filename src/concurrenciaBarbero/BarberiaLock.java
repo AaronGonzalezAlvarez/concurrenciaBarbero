@@ -7,40 +7,35 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class BarberiaLock {
-	
-	private AtomicInteger cola = new AtomicInteger(0);
-    private AtomicInteger sillas = new AtomicInteger(0);
-    private AtomicBoolean sillon = new AtomicBoolean(false);
+	private SillasSillon sillasSillon = new SillasSillon();
 
 	private ReentrantLock lock = new ReentrantLock();
 	private Condition sillasCondition = lock.newCondition();
-	private Condition colaCondition = lock.newCondition();
-	private Condition sillonCondition = lock.newCondition();
+	/*private Condition colaCondition = lock.newCondition();
+	private Condition sillonCondition = lock.newCondition();*/
 	private Random rand = new Random();
 
 	public void accesoBarberia(int i) throws InterruptedException {
 		lock.lock();
         try {
-        	while (sillas.get() == 5) {
+        	while (sillasSillon.completo()) {
                 System.out.println("El cliente " + i + " espera en la cola para sentarse");
                 //no se entra
-                cola.incrementAndGet();
-                colaCondition.await();
-                cola.decrementAndGet();
+                sillasCondition.await();
             }
         	
-            while (sillon.get()) {
+            while (sillasSillon.verSillon()) {
                 System.out.println("El cliente " + i + " espera en la silla");
-                sillas.incrementAndGet();
+                sillasSillon.addAfoto();
                 sillasCondition.await();
-                sillas.decrementAndGet();
+                sillasSillon.deleteAfoto();
             }
-            sillon.set(true);
+            
+            sillasSillon.sillonOcupado();
             System.out.println("Cliente "+i + " esperando a ser pelado");
-            sillonCondition.await();
-            sillon.set(false);
-			sillasCondition.signal();
-			colaCondition.signal();
+            sillasCondition.await();
+            sillasSillon.sillonLibre();
+            sillasCondition.signalAll();
             System.out.println("Cliente "+i + " ha salido satisfecho");
             //System.out.println("cola: " +cola+ " sillas: " +sillas+ " sillon: "+sillon);
         } finally {
@@ -53,9 +48,10 @@ public class BarberiaLock {
 		try {
 			boolean prueba = true;
 			do {
-				if (!sillon.get()) {
+				if (!sillasSillon.verSillon()) {
 					System.out.println("El barbero está durmiendo.");
-					Thread.sleep((10 + rand.nextInt(11)) * 1000);
+					//Thread.sleep((10 + rand.nextInt(11)) * 1000);
+					Thread.sleep(1000);
 				} else {
 					int numeroAleatorio = rand.nextInt(2) + 1;
 					if (numeroAleatorio == 1) {
@@ -65,12 +61,12 @@ public class BarberiaLock {
 					} else {
 						System.out.println("Estoy pelando al cliente.");
 						// cortando el pelo al cliente
-						Thread.sleep(7000);
-						// limpiar el suelo
 						Thread.sleep(2000);
-						System.out.println("he acabado de cortar el pelo");
-						sillonCondition.signal();
+						// limpiar el suelo
 						Thread.sleep(1000);
+						System.out.println("he acabado de cortar el pelo");
+						sillasCondition.signalAll();
+						Thread.sleep(2000);
 					}
 				}
 			}while(prueba);

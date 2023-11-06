@@ -7,73 +7,61 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class BarberiaSynchronized {
-	/*private int cola = 0;
-	private int sillas = 0;
-	private int sillon = 0;*/
 	
-	private AtomicInteger cola = new AtomicInteger(0);
-    private AtomicInteger sillas = new AtomicInteger(0);
-    private AtomicBoolean sillon = new AtomicBoolean(false);
-
 	private Object sillasCondition = new Object();
 	private Object colaCondition = new Object();
 	private Object sillonCondition = new Object();
+	private SillasSillon sillasSillon = new SillasSillon();
+	private Object prueba = new Object();
 	private Object barbero = new Object();
+	private int personasPeladas = 0;
 
 	private Random rand = new Random();
 
 	public void accesoBarberia(int i) throws InterruptedException {
-		synchronized (colaCondition) {
-			while (sillas.get() == 5) {
+		synchronized (prueba) {
+			while (sillasSillon.completo()) {
 				System.out.println("El cliente " + i + " espera en la cola para sentarse");
-				cola.incrementAndGet();
-				colaCondition.wait();
-				cola.decrementAndGet();
+				prueba.wait();
 			}
-		}
-
-		synchronized (sillasCondition) {
-			while (sillon.get()) {
+			while (sillasSillon.verSillon()) {
 				System.out.println("El cliente " + i + " espera en la silla");
-				sillas.incrementAndGet();
-				sillasCondition.wait();
-				sillas.decrementAndGet();
+				sillasSillon.addAfoto();
+				prueba.wait();
+				sillasSillon.deleteAfoto();
 			}
-		}
-
-		synchronized (sillonCondition) {
 			System.out.println("Cliente " + i + " esperando a ser pelado");
-			sillon.set(true);
-			sillonCondition.wait();	
-			sillon.set(false);
-			System.out.println("Cliente " + i + " satisfecho");		
-			synchronized (sillasCondition) {
-				sillasCondition.notify();
-			}
-			synchronized (colaCondition) {
-				colaCondition.notify();
-			}
+			sillasSillon.sillonOcupado();
+			prueba.wait();
+			sillasSillon.sillonLibre();
+			System.out.println("Cliente " + i + " satisfecho");
+			prueba.notify();
 		}
 	}
 
-	public void cortarPelo() throws InterruptedException {		
-			boolean prueba = true;
+	public void cortarPelo() throws InterruptedException {
+		synchronized (barbero) {
+
+			boolean pruebaB = true;
 			do {
-				if(sillon.get()) {
-					System.out.println("Estoy pelando al cliente.");
+				Thread.sleep(3000);
+				if (sillasSillon.verSillon()) {
+					personasPeladas++;
+					System.out.println("Estoy pelando al cliente. y es el cliente del dia numero: " + personasPeladas);
 					// cortando el pelo al cliente
-					//Thread.sleep(7000);
+					// Thread.sleep(7000);
 					// limpiar el suelo
 					Thread.sleep(2000);
 					System.out.println("he acabado de cortar el pelo");
-					synchronized (sillonCondition) {
-						sillonCondition.notify();
-						}
-				}else {
+					synchronized (prueba) {
+						prueba.notifyAll();
+					}
+				} else {
 					System.out.println("Sigo durmiendo.");
-					Thread.sleep(4000);
+					Thread.sleep(1000);
 				}
-				Thread.sleep(1000);
-			}while(prueba);
+			} while (pruebaB);
+
+		}
 	}
 }
