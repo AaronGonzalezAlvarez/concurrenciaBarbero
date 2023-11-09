@@ -5,10 +5,10 @@ import java.util.Random;
 public class Cliente extends Thread {
 
 	int i;
-	BarberiaSynchronized barberia;
+	BarberiaLock barberia;
 	private Random rand = new Random();
 
-	public Cliente(int i, BarberiaSynchronized barberia) {
+	public Cliente(int i, BarberiaLock barberia) {
 		this.i = i;
 		this.barberia = barberia;
 	}
@@ -16,6 +16,7 @@ public class Cliente extends Thread {
 	
 	public void run() {
 		try {
+			
 			Thread.sleep((1 + rand.nextInt(5)) * 1000);
 			barberia.agregarClientes(i);
 			barberia.accesoBarberia(i);

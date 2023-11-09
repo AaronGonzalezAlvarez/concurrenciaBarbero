@@ -28,10 +28,29 @@ public class BarberiaSemaforo {
     //5 sillas y un sillon
     private Semaphore sillas = new Semaphore(5);
     private Semaphore sillones = new Semaphore(1);
-    private Random rand = new Random();       
+    private Semaphore irse = new Semaphore(0);
+    private Random rand = new Random();  
+	private HashMap<String, Vuelta> clientes = new HashMap<String,Vuelta>(); 
+	private int clientesPelados =0;
+    
+	public synchronized void agregarClientes(int i) {
+		if (!clientes.containsKey("cliente" + i)) {
+			clientes.put("cliente" + i, new Vuelta());
+		}
+	}
     
     public void accesoBarberia(int i) throws InterruptedException {
-    	System.out.println("Cliente " + i + " en la cola para sentarme en la silla.");
+		while(sillas.availablePermits() == 0) {
+			System.out.println("Voy a dar una vuelta " + i);
+			Thread.sleep((5 + rand.nextInt(10)) * 1000);
+			clientes.get("cliente" + i).addVuelta();
+			if (clientes.get("cliente" + i).getVuelta() == 3) {
+				System.err.println("ME voy y no vuelva " + i);
+				irse.acquire();
+			}
+		}
+    	
+    	//System.out.println("Cliente " + i + " en la cola para sentarme en la silla.");
 	    sillas.acquire();
 	    System.out.println("Cliente " + i + " se sentó en una silla de espera.");
 	    
@@ -59,7 +78,8 @@ public class BarberiaSemaforo {
                     	Thread.sleep(2000);
                     	//limpiar el suelo
                     	Thread.sleep(1000);
-                    	System.out.println("he acabado de cortar el pelo");
+                    	clientesPelados++;
+                    	System.out.println("he acabado de cortar el pelo y es el pelado " + clientesPelados + " del dia");                    	
                     	sillones.release();
                     }                	
                 }
