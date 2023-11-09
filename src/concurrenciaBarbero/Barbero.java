@@ -1,9 +1,9 @@
 package concurrenciaBarbero;
 
 public class Barbero extends Thread {
-	BarberiaLock accion;
+	BarberiaSynchronized accion;
 	
-	public Barbero(BarberiaLock accion) {
+	public Barbero(BarberiaSynchronized accion) {
 		this.accion = accion;
 	}
 	
